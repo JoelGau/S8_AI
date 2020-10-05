@@ -7,66 +7,71 @@ Created on Mon Oct  5 13:24:04 2020
 """
 
 import numpy as np
+import GA_module as ga
 
 
 def sexy_time(p1,p2):
-    kid1 = {'gear-2-ratio': p1['gear-2-ratio'], 
-            'gear-3-ratio': p2['gear-3-ratio'], 
-            'gear-4-ratio': p1['gear-4-ratio'], 
-            'gear-5-ratio': p2['gear-5-ratio'], 
-            'gear-6-ratio': p1['gear-6-ratio'], 
-            'rear-differential-ratio': p2['rear-differential-ratio'], 
-            'rear-spoiler-angle': p1['rear-spoiler-angle'], 
-            'front-spoiler-angle': p2['front-spoiler-angle']}
+    gr2 = p1.gr2
+    gr4 = p1.gr4
+    gr6 = p1.gr6
+    aav = p1.aav
     
-    kid2 = {'gear-2-ratio': p2['gear-2-ratio'], 
-            'gear-3-ratio': p1['gear-3-ratio'], 
-            'gear-4-ratio': p2['gear-4-ratio'], 
-            'gear-5-ratio': p1['gear-5-ratio'], 
-            'gear-6-ratio': p2['gear-6-ratio'], 
-            'rear-differential-ratio': p1['rear-differential-ratio'], 
-            'rear-spoiler-angle': p2['rear-spoiler-angle'], 
-            'front-spoiler-angle': p1['front-spoiler-angle']}
+    gr3_2 = p2.gr3
+    gr5_2 = p2.gr5
+    rdiff_2 = p2.dgr
+    aar_2 = p2.aar
     
-    return (kid1, kid2)
+    p1.gr3 = gr3_2
+    p1.gr5 = gr5_2
+    p1.dgr = rdiff_2
+    p1.aar = aar_2
+    
+    p2.gr2 = gr2
+    p2.gr4 = gr4
+    p2.gr6 = gr6
+    p2.aav = aav
+
+    
+    return (p1, p2)
     
 
 def sexy_time2(p1,p2):
-    gear2ratio = find_big(p1['gear-2-ratio'][0], p2['gear-2-ratio'][0])
-    gear3ratio = find_big(p1['gear-3-ratio'][0], p2['gear-3-ratio'][0])
-    gear4ratio = find_big(p1['gear-4-ratio'][0], p2['gear-4-ratio'][0])
-    gear5ratio = find_big(p1['gear-5-ratio'][0], p2['gear-5-ratio'][0])
-    gear6ratio = find_big(p1['gear-6-ratio'][0], p2['gear-6-ratio'][0])
-    reardifferentialratio = find_big(p1['rear-differential-ratio'][0], p2['rear-differential-ratio'][0])
-    rearspoilerangle = find_big(p1['rear-spoiler-angle'][0], p2['rear-spoiler-angle'][0])
-    frontspoilerangle = find_big(p1['front-spoiler-angle'][0], p2['front-spoiler-angle'][0])
-    kid1 = {'gear-2-ratio': np.array([gear2ratio]),
-            'gear-3-ratio': np.array([gear3ratio]), 
-            'gear-4-ratio': np.array([gear4ratio]), 
-            'gear-5-ratio': np.array([gear5ratio]), 
-            'gear-6-ratio': np.array([gear6ratio]), 
-            'rear-differential-ratio': np.array([reardifferentialratio]), 
-            'rear-spoiler-angle': np.array([rearspoilerangle]), 
-            'front-spoiler-angle': np.array([frontspoilerangle])}
+    gear2ratio = find_big(p1.gr2, p2.gr2)
+    gear3ratio = find_big(p1.gr3, p2.gr3)
+    gear4ratio = find_big(p1.gr4, p2.gr4)
+    gear5ratio = find_big(p1.gr5, p2.gr5)
+    gear6ratio = find_big(p1.gr6, p2.gr6)
+    reardifferentialratio = find_big(p1.dgr, p2.dgr)
+    rearspoilerangle = find_big(p1.aav, p2.aav)
+    frontspoilerangle = find_big(p1.aar, p2.aar)
     
-    gear2ratio = find_small(p1['gear-2-ratio'][0], p2['gear-2-ratio'][0])
-    gear3ratio = find_small(p1['gear-3-ratio'][0], p2['gear-3-ratio'][0])
-    gear4ratio = find_small(p1['gear-4-ratio'][0], p2['gear-4-ratio'][0])
-    gear5ratio = find_small(p1['gear-5-ratio'][0], p2['gear-5-ratio'][0])
-    gear6ratio = find_small(p1['gear-6-ratio'][0], p2['gear-6-ratio'][0])
-    reardifferentialratio = find_small(p1['rear-differential-ratio'][0], p2['rear-differential-ratio'][0])
-    rearspoilerangle = find_small(p1['rear-spoiler-angle'][0], p2['rear-spoiler-angle'][0])
-    frontspoilerangle = find_small(p1['front-spoiler-angle'][0], p2['front-spoiler-angle'][0])
-    kid2 = {'gear-2-ratio': np.array([gear2ratio]),
-            'gear-3-ratio': np.array([gear3ratio]), 
-            'gear-4-ratio': np.array([gear4ratio]), 
-            'gear-5-ratio': np.array([gear5ratio]), 
-            'gear-6-ratio': np.array([gear6ratio]), 
-            'rear-differential-ratio': np.array([reardifferentialratio]), 
-            'rear-spoiler-angle': np.array([rearspoilerangle]), 
-            'front-spoiler-angle': np.array([frontspoilerangle])}
+    p1.gr2 = gear2ratio
+    p1.gr3 = gear3ratio
+    p1.gr4 = gear4ratio
+    p1.gr5 = gear5ratio
+    p1.gr6 = gear6ratio
+    p1.dgr = reardifferentialratio
+    p1.aav = rearspoilerangle
+    p1.aar = frontspoilerangle
     
-    return (kid1,kid2)
+    gear2ratio = find_small(p1.gr2, p2.gr2)
+    gear3ratio = find_small(p1.gr3, p2.gr3)
+    gear4ratio = find_small(p1.gr4, p2.gr4)
+    gear5ratio = find_small(p1.gr5, p2.gr5)
+    gear6ratio = find_small(p1.gr6, p2.gr6)
+    reardifferentialratio = find_small(p1.dgr, p2.dgr)
+    rearspoilerangle = find_small(p1.aav, p2.aav)
+    frontspoilerangle = find_small(p1.aar, p2.aar)
+    
+    p2.gr2 = gear2ratio
+    p2.gr3 = gear3ratio
+    p2.gr4 = gear4ratio
+    p2.gr5 = gear5ratio
+    p2.gr6 = gear6ratio
+    p2.dgr = reardifferentialratio
+    p2.aav = rearspoilerangle
+    p2.aar = frontspoilerangle
+    
     
 
 def sexy_time3(p1,p2,nb_premier = 3):

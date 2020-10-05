@@ -34,6 +34,9 @@ import numpy as np
 import logging
 import GA_module as ga
 
+import matplotlib.pyplot as plt
+
+
 sys.path.append('../..')
 from torcs.optim.core import TorcsOptimizationEnv, TorcsException
 
@@ -42,6 +45,7 @@ CDIR = os.path.dirname(os.path.realpath(__file__))
 logger = logging.getLogger(__name__)
 
 list_epoch =  []
+list_fitness = []
 
 
 ################################
@@ -55,22 +59,24 @@ def main():
         with TorcsOptimizationEnv(maxEvaluationTime) as env:
             
             Mypop = ga.Population()
-            Mypop.generatePopulation(10)
+            Mypop.generatePopulation(40)
             # Loop a few times for demonstration purpose
-            for i in range(10):
+            for i in range(0,25):
+                list_epoch = []
+                print("Epoch : ", i, "      ")
                 for individu in Mypop.Individus:
-                    
-                    # Simulate the result of each individual
+                     # Simulate the result of each individual
                     individu.observation, _, _, _ = env.step(individu.to_param())
                     list_epoch.append(individu.observation)
                                          
                     # Calculate fitness
                     individu.fitnessEco()
                     individu.fitnessSpo(maxEvaluationTime)
-                
+                    list_fitness.append(individu.fitnessEconomique)
                 # List individual in priority of fitness value
                 Mypop.sortIndividualEconomique()
                 Mypop.nextGeneration()
+                logger.info(list_epoch)
 
     except TorcsException as e:
         logger.error('Error occured communicating with TORCS server: ' + str(e))
@@ -81,6 +87,11 @@ def main():
 
     logger.info('All done.')
     logger.info(list_epoch)
+    
+    plt.plot(list_fitness)
+    plt.ylabel('Fitness')
+    plt.show()
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)

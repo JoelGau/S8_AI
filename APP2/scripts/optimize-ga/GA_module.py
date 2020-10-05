@@ -7,6 +7,7 @@ Created on Mon Oct  5 10:20:19 2020
 """
 import numpy as np
 import random as rd
+import sexy_time as st
 
 class Chromosome:      
     def __init__(self):
@@ -41,6 +42,7 @@ class Chromosome:
         c1 = 1
         c2 = 1
         self.fitnessSport = c1 * self.observation['topspeed'][0] + c2 * acceleration
+        
 
 class Population:
     def __init__(self):
@@ -53,17 +55,11 @@ class Population:
         for i in range(length):
             ind = Chromosome()
             self.Individus.append(ind)
-            
-    def reproduceChromosomes(self, Ind1, Ind2):
-        return [Ind1,Ind2]
         
     def nextGeneration(self):
-        newPopulation = []
         for i in range(0, len(self.Individus), 2):
-            [kid1, kid2] = self.reproduceChromosomes(self.Individus[i], self.Individus[i+1])
-            newPopulation.append(kid1)
-            newPopulation.append(kid2)
-        self.Individus = newPopulation
+            st.sexy_time2(self.Individus[i], self.Individus[i+1])
+            
 
     def sortIndividualSport(self):
         self.Individus.sort(key = takefitnessSport, reverse = True)
