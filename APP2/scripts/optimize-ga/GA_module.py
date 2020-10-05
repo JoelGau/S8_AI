@@ -8,27 +8,14 @@ Created on Mon Oct  5 10:20:19 2020
 import numpy as np
 import random as rd
 
-class Chromosome:
-# =============================================================================
-#     def __init__(self):
-#         self.gr2 = 1.7
-#         self.gr3 = 1.6
-#         self.gr4 = 2.8
-#         self.gr5 = 1.1
-#         self.gr6 = 1.0
-#         self.dgr = 8.6
-#         self.aav = 45
-#         self.aar = 45
-#         self.observation = []
-# =============================================================================
-        
+class Chromosome:      
     def __init__(self):
         self.gr2 = float(rd.randint(1,50))/10
         self.gr3 = float(rd.randint(1,50))/10
         self.gr4 = float(rd.randint(1,50))/10
         self.gr5 = float(rd.randint(1,50))/10
         self.gr6 = float(rd.randint(1,50))/10
-        self.dgr = float(rd.randint(1,100))/10
+        self.dgr = float(rd.randint(10,100))/10
         self.aav = float(rd.randint(0,900))/10
         self.aar = float(rd.randint(0,900))/10
         self.observation = []
@@ -66,6 +53,28 @@ class Population:
         for i in range(length):
             ind = Chromosome()
             self.Individus.append(ind)
-    
+            
+    def reproduceChromosomes(self, Ind1, Ind2):
+        return [Ind1,Ind2]
+        
     def nextGeneration(self):
-        pass
+        newPopulation = []
+        for i in range(0, len(self.Individus), 2):
+            [kid1, kid2] = self.reproduceChromosomes(self.Individus[i], self.Individus[i+1])
+            newPopulation.append(kid1)
+            newPopulation.append(kid2)
+        self.Individus = newPopulation
+
+    def sortIndividualSport(self):
+        self.Individus.sort(key = takefitnessSport, reverse = True)
+        
+    def sortIndividualEconomique(self):
+        self.Individus.sort(key = takefitnessEco)
+        
+# keys to spo
+def takefitnessSport(elem):
+    return elem.fitnessSport
+
+# keys to eco
+def takefitnessEco(elem):
+    return elem.fitnessEconomique

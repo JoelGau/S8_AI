@@ -54,57 +54,30 @@ def main():
         maxEvaluationTime = 50.0  # sec
         with TorcsOptimizationEnv(maxEvaluationTime) as env:
             
-#            parameters =   {'gear-2-ratio': np.array([1.7]), 
-#                            'gear-3-ratio': np.array([1.6]), 
-#                            'gear-4-ratio': np.array([2.8]), 
-#                            'gear-5-ratio': np.array([0.1]), 
-#                            'gear-6-ratio': np.array([0.3]), 
-#                            'rear-differential-ratio': np.array([8.6]), 
-#                            'rear-spoiler-angle': np.array([50.1]), 
-#                            'front-spoiler-angle': np.array([1.5])}
             Mypop = ga.Population()
             Mypop.generatePopulation(10)
             # Loop a few times for demonstration purpose
-            for individu in Mypop.Individus:
-
-                # Uncomment to use the default values in the TORCS simulator
-#                parameters = {'gear-2-ratio': np.array([2.5]),
-#                              'gear-3-ratio': np.array([1.5]),
-#                              'gear-4-ratio': np.array([1.5]),
-#                              'gear-5-ratio': np.array([1.5]),
-#                              'gear-6-ratio': np.array([1.0]),
-#                              'rear-differential-ratio': np.array([4.5]),
-#                              'rear-spoiler-angle': np.array([14.0]),
-#                              'front-spoiler-angle': np.array([6.0])}
-
+            for i in range(10):
+                for individu in Mypop.Individus:
+                    
+                    # Simulate the result of each individual
+                    individu.observation, _, _, _ = env.step(individu.to_param())
+                    list_epoch.append(individu.observation)
+                                         
+                    # Calculate fitness
+                    individu.fitnessEco()
+                    individu.fitnessSpo(maxEvaluationTime)
                 
-
-
-                # Uncomment to generate random values in the proper range for each variable
-                # parameters = env.action_space.sample()
-
-                # Generate a random vector of parameters in the proper interval
-                logger.info('Generated new parameter vector: ' + str(individu.to_param()))
-
-                # Perform the evaluation with the simulator
-#                observation, _, _, _ = env.step(parameters)
-                individu.observation, _, _, _ = env.step(individu.to_param())
-                list_epoch.append(individu.observation)
-                
-                # Display simulation results
-                logger.info('##################################################')
-                logger.info('Results:')
-                logger.info('Time elapsed (sec) =   %f', maxEvaluationTime)
-                logger.info('Top speed (km/h)   =   %f', individu.observation['topspeed'][0])
-                logger.info('Distance raced (m) =   %f', individu.observation['distRaced'][0])
-                logger.info('Fuel used (l)      =   %f', individu.observation['fuelUsed'][0])
-                logger.info('##################################################')
+                # List individual in priority of fitness value
+                Mypop.sortIndividualEconomique()
+                Mypop.nextGeneration()
 
     except TorcsException as e:
         logger.error('Error occured communicating with TORCS server: ' + str(e))
 
     except KeyboardInterrupt:
         pass
+    
 
     logger.info('All done.')
     logger.info(list_epoch)
