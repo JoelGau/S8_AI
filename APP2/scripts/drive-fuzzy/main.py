@@ -32,6 +32,15 @@ import sys
 import time
 import logging
 
+import numpy as np
+import skfuzzy as fuzz
+import matplotlib.pyplot as plt
+
+from skfuzzy import control as ctrl
+from gym import spaces, logger
+from gym.utils import seeding
+import math
+
 sys.path.append('../..')
 from torcs.control.core import TorcsControlEnv, TorcsException, EpisodeRecorder
 
@@ -43,6 +52,17 @@ logger = logging.getLogger(__name__)
 ################################
 # Define helper functions here
 ################################
+
+def createFuzzyController():
+    PI = math.pi
+    
+    angle = ctrl.Antecedent(np.linspace(-PI, PI, 1000), 'Angle')
+    track_pos = ctrl.Antecedent(np.linspace(-1, 1, 1000), 'Trackpos')
+    vitesse = ctrl.Antecedent(np.linspace(0, 300, 300), 'Vitesse')
+    rpm = ctrl.Antecedent(np.linspace(0, 10000, 10000), 'RPM')
+    courbe = ctrl.Antecedent(np.linspace(-1, 1, 1000), 'Courbe')
+
+
 
 def main():
 
