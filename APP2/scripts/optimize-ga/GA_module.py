@@ -7,7 +7,7 @@ Created on Mon Oct  5 10:20:19 2020
 """
 import numpy as np
 
-class Chromosomes:
+class Chromosome:
     def __init__(self):
         self.gr2 = 1.7
         self.gr3 = 1.6
@@ -29,3 +29,12 @@ class Chromosomes:
                         'rear-spoiler-angle': np.array([self.aav]), 
                         'front-spoiler-angle': np.array([self.aar])}
         return parameters
+    
+class Population:
+    def __init__(self):
+        self.Induvidus = []
+    
+    def calcultateFitness(self):
+        pass
+    
+    def generatePopulation(self,seed):

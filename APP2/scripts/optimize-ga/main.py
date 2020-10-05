@@ -62,7 +62,7 @@ def main():
 #                            'rear-differential-ratio': np.array([8.6]), 
 #                            'rear-spoiler-angle': np.array([50.1]), 
 #                            'front-spoiler-angle': np.array([1.5])}
-            Rob = ga.Chromosomes()
+            Rob = ga.Chromosome()
             # Loop a few times for demonstration purpose
             for i in range(15):
 
@@ -87,16 +87,16 @@ def main():
 
                 # Perform the evaluation with the simulator
 #                observation, _, _, _ = env.step(parameters)
-                observation, _, _, _ = env.step(Rob.to_param())
-                list_epoch.append(observation)
+                Rob.observation, _, _, _ = env.step(Rob.to_param())
+                list_epoch.append(Rob.observation)
                 
                 # Display simulation results
                 logger.info('##################################################')
                 logger.info('Results:')
                 logger.info('Time elapsed (sec) =   %f', maxEvaluationTime)
-                logger.info('Top speed (km/h)   =   %f', observation['topspeed'][0])
-                logger.info('Distance raced (m) =   %f', observation['distRaced'][0])
-                logger.info('Fuel used (l)      =   %f', observation['fuelUsed'][0])
+                logger.info('Top speed (km/h)   =   %f', Rob.observation['topspeed'][0])
+                logger.info('Distance raced (m) =   %f', Rob.observation['distRaced'][0])
+                logger.info('Fuel used (l)      =   %f', Rob.observation['fuelUsed'][0])
                 logger.info('##################################################')
 
     except TorcsException as e:
