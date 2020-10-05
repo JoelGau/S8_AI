@@ -62,9 +62,10 @@ def main():
 #                            'rear-differential-ratio': np.array([8.6]), 
 #                            'rear-spoiler-angle': np.array([50.1]), 
 #                            'front-spoiler-angle': np.array([1.5])}
-            Rob = ga.Chromosome()
+            Mypop = ga.Population()
+            Mypop.generatePopulation(10)
             # Loop a few times for demonstration purpose
-            for i in range(15):
+            for individu in Mypop.Individus:
 
                 # Uncomment to use the default values in the TORCS simulator
 #                parameters = {'gear-2-ratio': np.array([2.5]),
@@ -83,20 +84,20 @@ def main():
                 # parameters = env.action_space.sample()
 
                 # Generate a random vector of parameters in the proper interval
-                logger.info('Generated new parameter vector: ' + str(Rob.to_param()))
+                logger.info('Generated new parameter vector: ' + str(individu.to_param()))
 
                 # Perform the evaluation with the simulator
 #                observation, _, _, _ = env.step(parameters)
-                Rob.observation, _, _, _ = env.step(Rob.to_param())
-                list_epoch.append(Rob.observation)
+                individu.observation, _, _, _ = env.step(individu.to_param())
+                list_epoch.append(individu.observation)
                 
                 # Display simulation results
                 logger.info('##################################################')
                 logger.info('Results:')
                 logger.info('Time elapsed (sec) =   %f', maxEvaluationTime)
-                logger.info('Top speed (km/h)   =   %f', Rob.observation['topspeed'][0])
-                logger.info('Distance raced (m) =   %f', Rob.observation['distRaced'][0])
-                logger.info('Fuel used (l)      =   %f', Rob.observation['fuelUsed'][0])
+                logger.info('Top speed (km/h)   =   %f', individu.observation['topspeed'][0])
+                logger.info('Distance raced (m) =   %f', individu.observation['distRaced'][0])
+                logger.info('Fuel used (l)      =   %f', individu.observation['fuelUsed'][0])
                 logger.info('##################################################')
 
     except TorcsException as e:
