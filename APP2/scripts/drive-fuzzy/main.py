@@ -53,19 +53,10 @@ logger = logging.getLogger(__name__)
 # Define helper functions here
 ################################
 
-def createFuzzyController():
-    PI = math.pi
-    
-    angle = ctrl.Antecedent(np.linspace(-PI, PI, 1000), 'Angle')
-    track_pos = ctrl.Antecedent(np.linspace(-1, 1, 1000), 'Trackpos')
-    vitesse = ctrl.Antecedent(np.linspace(0, 300, 300), 'Vitesse')
-    rpm = ctrl.Antecedent(np.linspace(0, 10000, 10000), 'RPM')
-    courbe = ctrl.Antecedent(np.linspace(-1, 1, 1000), 'Courbe')
-
-
+import Fuzzy_module as fuzzmod   
 
 def main():
-
+    
     recordingsPath = os.path.join(CDIR, 'recordings')
     if not os.path.exists(recordingsPath):
         os.makedirs(recordingsPath)
@@ -73,6 +64,9 @@ def main():
     try:
         with TorcsControlEnv(render=False) as env:
 
+            sim = fuzzmod.createFuzzyController()
+            
+            
             nbTracks = len(TorcsControlEnv.availableTracks)
             nbSuccessfulEpisodes = 0
             for episode in range(nbTracks):
