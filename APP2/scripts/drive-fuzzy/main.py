@@ -65,9 +65,17 @@ def main():
         with TorcsControlEnv(render=False) as env:
 
             sim = fuzzmod.createFuzzyController()
+#            print('------------------------')
+#            for rule in sim.ctrl.rules:
+#                print(rule)
+#            print('------------------------')
+#             
+#            for var in sim.ctrl.fuzzy_variables:
+#                var.view()
+#            plt.show()
             
-            
-            nbTracks = len(TorcsControlEnv.availableTracks)
+            #nbTracks = len(TorcsControlEnv.availableTracks)
+            nbTracks = 2
             nbSuccessfulEpisodes = 0
             for episode in range(nbTracks):
                 logger.info('Episode no.%d (out of %d)' % (episode + 1, nbTracks))
@@ -84,7 +92,9 @@ def main():
                         # TODO: Select the next action based on the observation
                         action = env.action_space.sample()
                         recorder.save(observation, action)
-    
+                        
+                        action = fuzzmod.calcConsignes(sim, observation, action)
+                        
                         # Execute the action
                         observation, reward, done, _ = env.step(action)
                         curNbSteps += 1

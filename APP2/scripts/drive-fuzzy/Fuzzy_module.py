@@ -20,6 +20,45 @@ from gym import spaces, logger
 from gym.utils import seeding
 import math
 
+def calcVitesse(Vx,Vy):
+    return math.sqrt(Vx**2+Vy**2)
+
+def calcCourbe(capteur):
+    moygauche = np.mean(capteur[0:9])
+    moydroite = np.mean(capteur[9:18])
+    return (moydroite-moygauche)/100
+
+def calcGear(Shift,currentGear):
+    outGear = currentGear + Shift
+    if outGear < 1:
+        outGear = 1
+    elif outGear > 6:
+        outGear = 6
+    return outGear
+
+def calcConsignes(sim, observation, action):
+    # Calculate variables
+    vitesse = calcVitesse(observation["speed"][0], observation["speed"][1])
+    courbe = calcCourbe(observation["track"])
+    
+    # Link inputs
+    sim.input['Angle'] = observation["angle"][0]
+    #sim.input['Trackpos'] = observation["trackPos"][0]
+    sim.input['Vitesse'] = vitesse
+    sim.input['RPM'] = observation["rpm"][0]
+    sim.input['Courbe'] = courbe
+    
+    # Magic happens here
+    sim.compute()
+    
+    # Link output
+    action['accel'][0] = sim.output['Accel']
+    action['brake'][0] = sim.output['Brake']
+    action['steer'][0] = sim.output['Steer']
+    action['gear'][0] = calcGear(sim.output['Shift'], observation['gear'][0])
+    
+    return action
+
 def createFuzzyController():
     PI = math.pi
     
@@ -46,8 +85,8 @@ def createFuzzyController():
     rpm['High'] = fuzz.trapmf(rpm.universe, [4000, 5000, 10000, 10000]) 
     
     courbe['Straight'] = fuzz.trapmf(courbe.universe, [-0.5, -0.25, 0.25, 0.5])
-    courbe['KinkedL'] = fuzz.trapmf(courbe.universe, [-1, -1, -0.75, 0])
-    courbe['KinkedR'] = fuzz.trapmf(courbe.universe, [0, 0.75, 1, 1])
+    courbe['KinkedL'] = fuzz.trapmf(courbe.universe, [-1, -1, -0.75, -0.25])
+    courbe['KinkedR'] = fuzz.trapmf(courbe.universe, [0.25, 0.75, 1, 1])
 
     # Output consigne
     shift = ctrl.Consequent(np.linspace(-3, 3, 7), 'Shift', defuzzify_method='centroid')
@@ -56,9 +95,9 @@ def createFuzzyController():
     brake = ctrl.Consequent(np.linspace(0, 1, 1000), 'Brake', defuzzify_method='centroid')
     
     # Create membership functions
-    shift['DownShift'] = fuzz.trapmf(shift.universe, [-3, -3, 1, 2])
+    shift['DownShift'] = fuzz.trapmf(shift.universe, [-3, -3, -1, -0.5])
     shift['NoShift'] = fuzz.trapmf(shift.universe, [-1, 0, 0, 1])
-    shift['UpShift'] = fuzz.trapmf(shift.universe, [1, 2, 3, 3])
+    shift['UpShift'] = fuzz.trapmf(shift.universe, [0.5, 1, 3, 3])
     
     steer['HardLeft'] = fuzz.trapmf(steer.universe, [-1, -1, -0.75, -0.5])
     steer['SoftLeft'] = fuzz.trapmf(steer.universe, [-0.75, -0.5, -0.25, 0])
