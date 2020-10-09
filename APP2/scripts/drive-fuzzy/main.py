@@ -54,6 +54,7 @@ logger = logging.getLogger(__name__)
 ################################
 
 import Fuzzy_module as fuzzmod   
+prelim_test = 0
 
 def main():
     
@@ -65,18 +66,22 @@ def main():
         with TorcsControlEnv(render=False) as env:
 
             sim = fuzzmod.createFuzzyController()
-#            print('------------------------')
-#            for rule in sim.ctrl.rules:
-#                print(rule)
-#            print('------------------------')
-#             
-#            for var in sim.ctrl.fuzzy_variables:
-#                var.view()
-#            plt.show()
+            if prelim_test == 1:
+                print('------------------------')
+                for rule in sim.ctrl.rules:
+                    print(rule)
+                print('------------------------')
+                 
+                for var in sim.ctrl.fuzzy_variables:
+                    var.view()
+                plt.show()
+                
+                nbTracks = len(TorcsControlEnv.availableTracks)
             
-            #nbTracks = len(TorcsControlEnv.availableTracks)
-            nbTracks = 2
+                
+            nbTracks = 1
             nbSuccessfulEpisodes = 0
+            
             for episode in range(nbTracks):
                 logger.info('Episode no.%d (out of %d)' % (episode + 1, nbTracks))
                 startTime = time.time()
