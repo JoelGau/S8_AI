@@ -31,6 +31,13 @@ import os
 import sys
 import time
 import logging
+import numpy as np
+
+import nn_module as nn
+import tensorflow as tf
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import Adam, SGD
 
 sys.path.append('../..')
 from torcs.control.core import TorcsControlEnv, TorcsException, EpisodeRecorder
@@ -39,10 +46,26 @@ CDIR = os.path.dirname(os.path.realpath(__file__))
 
 logger = logging.getLogger(__name__)
 
+# Controle rules data set
+data, target = nn.build_dataset()
 
-################################
-# Define helper functions here
-################################
+# Create neural network
+model = Sequential()
+model.add(Dense(units=8, activation='sigmoid', input_shape=(3,)))
+model.add(Dense(units=8, activation='sigmoid'))
+model.add(Dense(units=2, activation='sigmoid'))
+print(model.summary())
+
+# Define training parameters
+model.compile(optimizer = SGD(lr = 0.6), loss='mse')
+
+# Perform training
+model.fit(data, target, batch_size=len(data), epochs=10000, shuffle=True, verbose=1)
+
+
+#targetPred = model.predict(data)
+
+
 
 def main():
 
@@ -70,14 +93,25 @@ def main():
                         # TODO: Select the next action based on the observation
                         action = env.action_space.sample()
                         recorder.save(observation, action)
-    
-                        # Execute the action
+
+                        
+                        vis = nn.vision(observation["track"])
+                       
+                        pred = model.predict(vis)
+                        
+                        action['accel'][0] = pred[0, 0]
+                        action['brake'][0] = 0
+                        action['steer'][0] = (pred[0, 1]-0.5)*2
+                        
+                       # Execute the action
                         observation, reward, done, _ = env.step(action)
                         curNbSteps += 1
+  
     
                         if observation and curNbSteps % nbStepsShowStats == 0:
                             curLapTime = observation['curLapTime'][0]
                             distRaced = observation['distRaced'][0]
+                            print(pred)
                             logger.info('Current lap time = %4.1f sec (distance raced = %0.1f m)' % (curLapTime, distRaced))
     
                         if done:
