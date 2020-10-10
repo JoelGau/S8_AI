@@ -47,7 +47,8 @@ logger = logging.getLogger(__name__)
 list_epoch =  []
 list_fitness = []
 
-
+nb_epoch = 10
+population = 40
 ################################
 # Define helper functions here
 ################################
@@ -59,9 +60,9 @@ def main():
         with TorcsOptimizationEnv(maxEvaluationTime) as env:
             
             Mypop = ga.Population()
-            Mypop.generatePopulation(40)
+            Mypop.generatePopulation(population)
             # Loop a few times for demonstration purpose
-            for i in range(0,25):
+            for i in range(0,nb_epoch):
                 list_epoch = []
                 print("Epoch : ", i, "      ")
                 for individu in Mypop.Individus:
@@ -71,11 +72,13 @@ def main():
                                          
                     # Calculate fitness
                     individu.fitnessEco()
-                    individu.fitnessSpo(maxEvaluationTime)
-                    list_fitness.append(individu.fitnessEconomique)
+                    #individu.fitnessSpo(maxEvaluationTime)
                 # List individual in priority of fitness value
                 Mypop.sortIndividualEconomique()
+                for individu in Mypop.Individus:
+                    list_fitness.append(individu.fitnessEconomique)
                 Mypop.nextGeneration()
+                
                 logger.info(list_epoch)
 
     except TorcsException as e:
@@ -88,8 +91,15 @@ def main():
     logger.info('All done.')
     logger.info(list_epoch)
     
+    # Evaluate fitness between generations
     plt.plot(list_fitness)
-    plt.ylabel('Fitness')
+    plt.title("Fitness des différents individus")
+    plt.xlabel('Individus')
+    plt.ylabel('Fitness (Smaller is better)')
+    plt.ylim(top=0.0007)
+    plt.xlim(left=0, right=population*nb_epoch-1)
+    for i in range (0,nb_epoch-1):
+        plt.vlines((i+1)*population-1,0,0.0007,linestyle = 'dashed')
     plt.show()
 
 

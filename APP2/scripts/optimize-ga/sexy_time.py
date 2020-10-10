@@ -9,8 +9,8 @@ Created on Mon Oct  5 13:24:04 2020
 import numpy as np
 import GA_module as ga
 
-
-def sexy_time(p1,p2):
+# Alternance des gènes
+def sexyTime_first(p1,p2):
     gr2 = p1.gr2
     gr4 = p1.gr4
     gr6 = p1.gr6
@@ -35,7 +35,8 @@ def sexy_time(p1,p2):
     return (p1, p2)
     
 
-def sexy_time2(p1,p2):
+# Enfant maximum et enfant Minimum
+def sexyTime_minmax(p1,p2):
     gear2ratio = find_big(p1.gr2, p2.gr2)
     gear3ratio = find_big(p1.gr3, p2.gr3)
     gear4ratio = find_big(p1.gr4, p2.gr4)
@@ -72,8 +73,6 @@ def sexy_time2(p1,p2):
     p2.aav = rearspoilerangle
     p2.aar = frontspoilerangle
     
-    
-
 def sexy_time3(p1,p2,nb_premier = 3):
     kid1 = {}
     kid2 = {}

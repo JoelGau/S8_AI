@@ -48,9 +48,6 @@ class Population:
     def __init__(self):
         self.Individus = []
     
-    def calcultateFitness(self):
-        pass
-    
     def generatePopulation(self,length):
         for i in range(length):
             ind = Chromosome()
@@ -60,7 +57,11 @@ class Population:
         for i in range(0, len(self.Individus), 2):
             st.sexy_time2(self.Individus[i], self.Individus[i+1])
             
-
+    def naturalSelection(self):
+        # First half of the population breath
+        # first 20 % Survives
+        #for i in range
+        pass
     def sortIndividualSport(self):
         self.Individus.sort(key = takefitnessSport, reverse = True)
         
