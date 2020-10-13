@@ -15,21 +15,10 @@ from keras import backend as K
 from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.optimizers import SGD
+from nipype.utils.filemanip import loadpkl
 
 
-# creating training data
-def build_dataset():
-    rules = [1.0,1.0,1.0,1.0,0.5,0.5,1.0,1.0,0.6,0.7,1.0,1.0,0.5,0.6,0.3,1.0,0.5,1.0,0.3,0.4,0.5,1.0,0.5,0.7,0.5,0.0,0.0,0.0,0.2,0.2,0.5,0.5,0.5,0.5,0.4,0.0,1.0,1.0,0.4,0.9,1.0,1.0,0.0,0.4,0.1,1.0,0.0,1.0,0.2,0.2,0.0,1.0,0.0,1.0,0.5,0.0,0.0,1.0,0.3,0.8,1.0,0.0,0.0,0.3,0.2,0.3,0.4,0.1,0.5,0.3,0.1,0.4,0.3,0.5,0.7,0.0,0.1,0.2,0.3,0.9,0.2,0.1,0.0,0.3,0.1,0.0,0.3,0.6,0.5,0.8,0.6,0.3,0.0,0.5,0.2,0.2,0.3,0.4,0.5,0.9,0.4,0.3,0.2,0.4,0.1]
-    data = np.empty((int(len(rules)/5), 3), dtype=np.float32) 
-    target = np.empty((int(len(rules)/5), 2), dtype=np.float32) 
-    in_rule_frame = np.empty((5)) 
-    
-    for i in range(0, len(rules), 5): 
-        in_rule_frame[:] = rules[i:i+5] 
-        data[int(i/5), :] = in_rule_frame[0:3] 
-        target[int(i/5), :] = in_rule_frame[3:5]
-    
-    return data, target
+
 
 def vision(capteur):
     dg = np.mean(capteur[0:8])/100
@@ -40,6 +29,46 @@ def vision(capteur):
     
     return vis
 
+# creating training data
+def load_dataset(file):
+    
+    # open a file, where you stored the pickled data
+    data_loaded = loadpkl(file)
+    size = 4875 # harcoded for now
+    
+    # inputs (observations)
+    angle_data = np.empty((size, 1), dtype=np.float32)
+    gear_data = np.empty((size, 1), dtype=np.float32)
+    rpm_data = np.empty((size, 1), dtype=np.float32)
+    speed_data = np.empty((size, 2), dtype=np.float32)
+    track_data = np.empty((size, 19), dtype=np.float32)
+    trackpos_data = np.empty((size, 1), dtype=np.float32)
+    
+    # outputs (action)
+    accel_target = np.empty((size, 1), dtype=np.float32)
+    brake_target = np.empty((size, 1), dtype=np.float32)
+    gear_target = np.empty((size, 1), dtype=np.float32)
+    steer_target = np.empty((size, 1), dtype=np.float32)
+    
+    for i in range(size):
+        angle_data[i, 0] = data_loaded[i]['angle']
+        gear_data[i, 0] = data_loaded[i]['gear'] * 0.1
+        rpm_data[i, 0] = data_loaded[i]['rpm']
+        speed_data[i, :] = data_loaded[i]['speed']
+        track_data[i, :] = data_loaded[i]['track']
+        trackpos_data[i, 0] = data_loaded[i]['trackPos']
+    
+        accel_target[i, 0] = data_loaded[i]['accelCmd']
+        brake_target[i, 0] = data_loaded[i]['brakeCmd']
+        gear_target[i, 0] = data_loaded[i]['gearCmd'] * 0.1
+        steer_target[i, 0] = data_loaded[i]['steerCmd']*0.5 + 0.5
+        
+    data = np.concatenate((angle_data, gear_data, speed_data, track_data, trackpos_data), axis=1)  
+    target = np.concatenate((accel_target, brake_target, gear_target, steer_target), axis=1)
+    #data = np.concatenate((speed_data, track_data, trackpos_data), axis=1)
+    #target = np.concatenate((accel_target, brake_target, steer_target), axis=1)
+    
+    return data, target
 
 
 
