@@ -72,9 +72,9 @@ def main():
                                          
                     # Calculate fitness
                     individu.fitnessEco()
-                    #individu.fitnessSpo(maxEvaluationTime)
                 # List individual in priority of fitness value
                 Mypop.sortIndividualEconomique()
+                # Save Fitness for futher evaluation
                 for individu in Mypop.Individus:
                     list_fitness.append(individu.fitnessEconomique)
                 Mypop.nextGeneration()
