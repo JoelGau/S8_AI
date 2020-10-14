@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Oct  5 13:24:04 2020
-
-@author: Laurent Colas
-"""
 
 import numpy as np
 import GA_module as ga
@@ -73,40 +66,6 @@ def sexyTime_minmax(p1,p2):
     p2.aav = rearspoilerangle
     p2.aar = frontspoilerangle
     
-def sexyTime_5050(p1,p2):
-    # Calculate new GearRatios
-    p1gr2, p2gr2 = newGearRatio_5050(p1.gr2,p2.gr2)
-    p1gr3, p2gr3 = newGearRatio_5050(p1.gr3,p2.gr3)
-    p1gr4, p2gr4 = newGearRatio_5050(p1.gr4,p2.gr4)
-    p1gr5, p2gr5 = newGearRatio_5050(p1.gr5,p2.gr5)
-    p1gr6, p2gr6 = newGearRatio_5050(p1.gr6,p2.gr6)
-    
-    # Calculate new Differential Gear Ratio
-    p1dgr, p2dgr = newDifferential(p1.dgr, p2.dgr)
-    
-    # Calculate new fin angles
-    p1aar, p2aar = newFinAngle_5050(p1.aar, p2.aar)
-    p1aav, p2aav = newFinAngle_5050(p1.aav, p2.aav)
-    
-    # Replace parents with kids
-    p1.gr2 = p1gr2
-    p1.gr3 = p1gr3
-    p1.gr4 = p1gr4
-    p1.gr5 = p1gr5
-    p1.gr6 = p1gr6
-    p1.dgr = p1dgr
-    p1.aar = p1aar
-    p1.aav = p1aav
-    
-    p2.gr2 = p2gr2
-    p2.gr3 = p2gr3
-    p2.gr4 = p2gr4
-    p2.gr5 = p2gr5
-    p2.gr6 = p2gr6
-    p2.dgr = p2dgr
-    p2.aar = p2aar
-    p2.aav = p2aav
-
 def find_big(num1, num2):
     if (num1 >= num2):
         return num1
@@ -117,7 +76,22 @@ def find_small(num1, num2):
     if (num1 <= num2):
         return num1
     else:
-        return num2    
+        return num2  
+    
+def sexyTime_5050(p1,p2):
+    # Calculate new GearRatios
+    p1.gr2, p2.gr2 = newGearRatio_5050(p1.gr2,p2.gr2)
+    p1.gr3, p2.gr3 = newGearRatio_5050(p1.gr3,p2.gr3)
+    p1.gr4, p2.gr4 = newGearRatio_5050(p1.gr4,p2.gr4)
+    p1.gr5, p2.gr5 = newGearRatio_5050(p1.gr5,p2.gr5)
+    p1.gr6, p2.gr6 = newGearRatio_5050(p1.gr6,p2.gr6)
+    
+    # Calculate new Differential Gear Ratio
+    p1.dgr, p2.dgr = newDifferential_5050(p1.dgr, p2.dgr)
+    
+    # Calculate new fin angles
+    p1.aar, p2.aar = newFinAngle_5050(p1.aar, p2.aar)
+    p1.aav, p2.aav = newFinAngle_5050(p1.aav, p2.aav)  
     
 def newGearRatio_5050(p1gr, p2gr):
     # Evaluate Gear Ratios in binary
@@ -140,7 +114,7 @@ def newGearRatio_5050(p1gr, p2gr):
         
     return outp1gr, outp2gr 
 
-def newDifferential(p1dgr, p2dgr):
+def newDifferential_5050(p1dgr, p2dgr):
     # Evaluate Gear Ratios in binary
     up1 = 112 & p1dgr # 0b1110000
     down1 = 15 & p1dgr # 0b0001111
