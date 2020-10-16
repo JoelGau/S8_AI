@@ -33,12 +33,15 @@ import time
 import logging
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 import nn_module as nn
 import tensorflow as tf
 from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.optimizers import Adam, SGD
+
+
 
 
 sys.path.append('../..')
@@ -52,27 +55,23 @@ train = True
 
 
 experiment = Experiment(api_key="oXuZfAKkB3UrV8H78EqqBAkzL",
-                        project_name="neuromap-codec", workspace="bertsam")
+                        project_name="app2", workspace="bertsam")
 
-learning_rate = 0.5
+learning_rate = 0.6
 nb_epoch = 20000
+valid_per = 0.1
+
 
 
 if train:
     # Controle rules data set
-    data, target = nn.load_dataset('track-alpine-1.pklz')
+    data, target, valid_data, valid_target, size_in, size_out = nn.load_dataset('track.pklz', valid_per)
     
     
+
+    model = nn.create_nn_model(size_in, size_out)
+
     
-    _, size_in = data.shape
-    _, size_out = target.shape
-    
-    # Create neural network
-    model = Sequential()
-    model.add(Dense(units= size_in*1, activation='sigmoid', input_shape= (size_in,)))
-    #model.add(Dense(units= size_in, activation='sigmoid'))
-    model.add(Dense(units= size_out, activation='sigmoid'))
-    #print(model.summary())
     
     # Define training parameters
     model.compile(optimizer = SGD(lr = learning_rate), loss='mse')
@@ -89,7 +88,13 @@ if train:
     print('Training...')
 
     # Perform training
-    model.fit(data, target, batch_size=len(data), epochs=nb_epoch, shuffle=True, verbose=1)
+    #model.fit(data, target, batch_size=len(data), epochs=nb_epoch, shuffle=True, verbose=1)
+    model.fit(data, target,
+                batch_size=len(data),
+                epochs = nb_epoch,
+                shuffle=True,
+                verbose=0,
+                validation_data=(valid_data, valid_target))
     
     save_name = str('car_ride_epoch_V3=' + str(nb_epoch) + '_HlSize=24.h5')
     model.save(save_name)
