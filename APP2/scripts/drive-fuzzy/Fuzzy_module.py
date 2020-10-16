@@ -78,9 +78,9 @@ def createFuzzyController():
     angle['AngleRealPos'] = fuzz.trapmf(angle.universe, [PI/4, PI/2, PI, PI])
     
     track_pos['PosToRight'] = fuzz.trapmf(track_pos.universe, [-1, -1, -0.5, -0.4])
-    track_pos['PosRight'] = fuzz.trapmf(track_pos.universe, [-0.5, -0.4, -0.25, -0.15])
-    track_pos['PosMid'] = fuzz.trapmf(track_pos.universe, [-0.20, -0.15, 0.15, 0.20])
-    track_pos['PosLeft'] = fuzz.trapmf(track_pos.universe, [0.15, 0.25, 0.4, 0.5])
+    track_pos['PosRight'] = fuzz.trapmf(track_pos.universe, [-0.5, -0.4, -0.25, -0.1])
+    track_pos['PosMid'] = fuzz.trapmf(track_pos.universe, [-0.15, -0.1, 0.1, 0.15])
+    track_pos['PosLeft'] = fuzz.trapmf(track_pos.universe, [0.1, 0.25, 0.4, 0.5])
     track_pos['PosToLeft'] = fuzz.trapmf(track_pos.universe, [0.4, 0.5, 1, 1])
     
     vitesse['Low'] = fuzz.trapmf(vitesse.universe, [0, 0, 60, 80])
@@ -112,21 +112,21 @@ def createFuzzyController():
 #    steer['SoftLeft'] = fuzz.trapmf(steer.universe, [0.15, 0.35, 0.5, 0.55])
 #    steer['HardLeft'] = fuzz.trapmf(steer.universe, [0.5, 0.75, 1, 1])
     
-    steer['HardRight'] = fuzz.trapmf(steer.universe, [-1, -1, -0.75, -0.5])
-    steer['SoftRight'] = fuzz.trapmf(steer.universe, [-0.55, -0.5, -0.35, -0.15])
+    steer['HardRight'] = fuzz.trapmf(steer.universe, [-1, -1, -0.75, -0.4])
+    steer['SoftRight'] = fuzz.trapmf(steer.universe, [-0.45, -0.4, -0.25, -0.15])
     steer['Rest'] = fuzz.trapmf(steer.universe, [-0.20, -0.15, 0.15, 0.20])
-    steer['SoftLeft'] = fuzz.trapmf(steer.universe, [0.15, 0.35, 0.5, 0.55])
-    steer['HardLeft'] = fuzz.trapmf(steer.universe, [0.5, 0.75, 1, 1])
+    steer['SoftLeft'] = fuzz.trapmf(steer.universe, [0.15, 0.25, 0.4, 0.45])
+    steer['HardLeft'] = fuzz.trapmf(steer.universe, [0.4, 0.75, 1, 1])
 
 #    accel['NoAccel'] = fuzz.trapmf(accel.universe, [0, 0, 0.25, 0.5])
 #    accel['YesAccel'] = fuzz.trapmf(accel.universe, [0.25, 0.5, 1, 1])
-    accel['NoAccel'] = fuzz.trapmf(accel.universe, [0, 0, 0.1, 0.11])
-    accel['YesAccel'] = fuzz.trapmf(accel.universe, [0.1, 0.14, 1, 1])
+    accel['NoAccel'] = fuzz.trapmf(accel.universe, [0, 0, 0.05, 0.05])
+    accel['YesAccel'] = fuzz.trapmf(accel.universe, [0.05, 0.05, 1, 1])
     
 #    brake['NoBrake'] = fuzz.trapmf(brake.universe, [0, 0, 0.25, 0.5])
 #    brake['YesBrake'] = fuzz.trapmf(brake.universe, [0.25, 0.5, 1, 1])
-    brake['NoBrake'] = fuzz.trapmf(brake.universe, [0, 0, 0.1, 0.11])
-    brake['YesBrake'] = fuzz.trapmf(brake.universe, [0.1, 0.14, 1, 1])
+    brake['NoBrake'] = fuzz.trapmf(brake.universe, [0, 0, 0.05, 0.05])
+    brake['YesBrake'] = fuzz.trapmf(brake.universe, [0.05, 0.05, 1, 1])
     
     # Define the rules.
     rules = []
