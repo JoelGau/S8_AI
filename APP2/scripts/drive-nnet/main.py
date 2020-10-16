@@ -26,7 +26,7 @@
 
 # Author: Simon Brodeur <simon.brodeur@usherbrooke.ca>
 # Université de Sherbrooke, APP3 S8GIA, A2018
-
+from comet_ml import Experiment
 import os
 import sys
 import time
@@ -41,7 +41,6 @@ from keras.layers import Dense
 from keras.optimizers import Adam, SGD
 
 
-
 sys.path.append('../..')
 from torcs.control.core import TorcsControlEnv, TorcsException, EpisodeRecorder
 
@@ -49,11 +48,21 @@ CDIR = os.path.dirname(os.path.realpath(__file__))
 
 logger = logging.getLogger(__name__)
 
-train = False
+train = True
+
+
+experiment = Experiment(api_key="oXuZfAKkB3UrV8H78EqqBAkzL",
+                        project_name="neuromap-codec", workspace="bertsam")
+
+learning_rate = 0.5
+nb_epoch = 20000
+
 
 if train:
     # Controle rules data set
-    data, target = nn.load_dataset('track.pklz')
+    data, target = nn.load_dataset('track-alpine-1.pklz')
+    
+    
     
     _, size_in = data.shape
     _, size_out = target.shape
@@ -66,13 +75,23 @@ if train:
     #print(model.summary())
     
     # Define training parameters
-    model.compile(optimizer = SGD(lr = 0.5), loss='mse')
+    model.compile(optimizer = SGD(lr = learning_rate), loss='mse')
     
-    ep = 20000
+
+    # log your  parameters to Comet.ml!
+    params = {"learning_rate": learning_rate,
+              "batch_size": len(data),
+              "nb_epoch": nb_epoch
+              }
+    
+    experiment.log_parameters(params)
+    
+    print('Training...')
+
     # Perform training
-    model.fit(data, target, batch_size=len(data), epochs=ep, shuffle=True, verbose=1)
+    model.fit(data, target, batch_size=len(data), epochs=nb_epoch, shuffle=True, verbose=1)
     
-    save_name = str('car_ride_epoch_V3=' + str(ep) + '_HlSize=24.h5')
+    save_name = str('car_ride_epoch_V3=' + str(nb_epoch) + '_HlSize=24.h5')
     model.save(save_name)
 
 else:

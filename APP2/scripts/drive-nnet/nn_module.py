@@ -6,15 +6,7 @@ Created on Sat Oct 10 08:58:43 2020
 @author: user
 """
 
-import random
-import tensorflow as tf
 import numpy as np
-import matplotlib.pyplot as plt
-
-from keras import backend as K
-from keras.models import Sequential, load_model
-from keras.layers import Dense
-from keras.optimizers import SGD
 from nipype.utils.filemanip import loadpkl
 
 
@@ -34,7 +26,8 @@ def load_dataset(file):
     
     # open a file, where you stored the pickled data
     data_loaded = loadpkl(file)
-    size = 4875 # harcoded for now
+    
+    size = len(data_loaded) 
     
     # inputs (observations)
     angle_data = np.empty((size, 1), dtype=np.float32)
