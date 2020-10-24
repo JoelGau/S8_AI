@@ -33,6 +33,7 @@ import time
 import numpy as np
 import logging
 import GA_module as ga
+import copy as cp
 
 import matplotlib.pyplot as plt
 
@@ -44,19 +45,21 @@ CDIR = os.path.dirname(os.path.realpath(__file__))
 
 logger = logging.getLogger(__name__)
 
-list_epoch =  []
-list_fitness = []
 
-nb_epoch = 100
-population = 20
 ################################
 # Define helper functions here
 ################################
 
-def main():
-
+def main(nb_epoch, population):
+    list_epoch =  []
+    list_fitness = []
+    list_FitMoy = []
+    temp_list_fitness = []
+    Best = ga.Chromosome()
+    Best.fitnessEconomique = 9999
+    Best.fitnessSport = 0
     try:
-        maxEvaluationTime = 60.0  # sec
+        maxEvaluationTime = 100.0  # sec
         with TorcsOptimizationEnv(maxEvaluationTime) as env:
             
             Mypop = ga.Population()
@@ -66,26 +69,27 @@ def main():
                 print("Epoch : ", i, "      ")
                 for individu in Mypop.Individus:
                      # Simulate the result of each individual
-                    individu.observation, _, _, _ = env.step(individu.to_param())                                       
+                    individu.observation, _, _, _ = env.step(individu.to_param())
+                    if not individu.observation:
+                        print("Torcs failed")                                   
                     # Calculate fitness
-                    individu.fitnessEco()
+                    individu.fitnessSpo(maxEvaluationTime)
                 # List individual in priority of fitness value
-                Mypop.sortIndividualEconomique()
+                Mypop.sortIndividualSport()
                 # Save Fitness for futher evaluation
                 for individu in Mypop.Individus:
-                    list_fitness.append(individu.fitnessEconomique)
-                Mypop.nextGeneration_Mutation(1)
-            
-            # Evaluate fitness between generations
-            plt.plot(list_fitness)
-            plt.title("Fitness des différents individus")
-            plt.xlabel('Individus')
-            plt.ylabel('Fitness (Smaller is better)')
-            plt.ylim(top=0.0007)
-            plt.xlim(left=0, right=population*nb_epoch-1)
-            for i in range (0,nb_epoch-1):
-                plt.vlines((i+1)*population-1,0,0.0007,linestyle = 'dashed')
-            plt.show()
+                    temp_list_fitness.append(individu.fitnessSport)
+                # Save the mean fitness of the population
+                list_FitMoy.append(np.mean(temp_list_fitness))
+                # Save all the fitness in the population
+                list_fitness.extend(temp_list_fitness)
+                temp_list_fitness.clear()
+                # Save the best candidate
+                print(Best.fitnessSport)
+                if (Best.fitnessSport < Mypop.Individus[0].fitnessSport):
+                    print("New Best!")
+                    Best = cp.copy(Mypop.Individus[0])
+                Mypop.nextGeneration_Starbuck()
 
     except TorcsException as e:
         logger.error('Error occured communicating with TORCS server: ' + str(e))
@@ -96,6 +100,49 @@ def main():
 
     logger.info('All done.')
     logger.info(list_epoch)
+    
+    return Best, list_FitMoy, list_fitness
+
+def AffichageFitnessEco(list_fitness, population, nb_epoch):
+    # Evaluate ecofitness between generations
+    plt.figure()
+    plt.plot(list_fitness)
+    plt.title("Fitness des différents individus")
+    plt.xlabel('Individus')
+    plt.ylabel('Fitness (Smaller is better)')
+    plt.ylim(top=0.0007)
+    plt.xlim(left=0, right=population*nb_epoch-1)
+    for i in range (0,nb_epoch-1):
+        plt.vlines((i+1)*population-1,0,0.0007,linestyle = 'dashed')
+    plt.show()
+    
+def AffichageFitnessSpo(list_fitness, population, nb_epoch):
+    # Evaluate ecofitness between generations
+    plt.figure()
+    plt.plot(list_fitness)
+    plt.title("Fitness des différents individus")
+    plt.xlabel('Individus')
+    plt.ylabel('Fitness (Bigger is better)')
+    plt.xlim(left=0, right=population*nb_epoch-1)
+    for i in range (0,nb_epoch-1):
+        plt.vlines((i+1)*population-1,0,1000,linestyle = 'dashed')
+    plt.show()
+    
+def AffichageFitMoyEco(list_FitMoy, nb_epoch):
+    plt.figure()
+    plt.plot(list_FitMoy)
+    plt.title("Fitness moyen des populations")
+    plt.xlabel('Générations')
+    plt.ylabel('Fitness (Smaller is better)')
+    plt.show()
+
+def AffichageFitMoySpo(list_FitMoy, nb_epoch):
+    plt.figure()
+    plt.plot(list_FitMoy)
+    plt.title("Fitness moyen des populations")
+    plt.xlabel('Générations')
+    plt.ylabel('Fitness (Bigger is better)')
+    plt.show()
 
 def test():
 
@@ -125,8 +172,12 @@ def test():
         pass
 
 if __name__ == '__main__':
+    nb_epoch = 10
+    population = 50
     logging.basicConfig(level=logging.INFO)
-    main()
+    best, moy, every = main(nb_epoch, population)
+    AffichageFitMoySpo(moy, nb_epoch)
+    AffichageFitnessSpo(every, population, nb_epoch)
     #test()
     
 

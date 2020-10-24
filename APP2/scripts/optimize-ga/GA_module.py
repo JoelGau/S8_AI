@@ -1,21 +1,9 @@
 import numpy as np
 import random as rd
 import sexy_time as st
+import copy as cp
 
-class Chromosome:     
-    def __init__(self, gr2, gr3, gr4, gr5, gr6, dgr, aav, aar):
-        self.gr2 = gr2
-        self.gr3 = gr3
-        self.gr4 = gr4
-        self.gr5 = gr5
-        self.gr6 = gr6
-        self.dgr = dgr
-        self.aav = aav
-        self.aar = aar
-        self.observation = []
-        self.fitnessEconomique = 0
-        self.fitnessSport = 0
-        
+class Chromosome:             
     def __init__(self):
         self.gr2 = rd.randint(1,50)
         self.gr3 = rd.randint(1,50)
@@ -45,8 +33,8 @@ class Chromosome:
         
     def fitnessSpo(self, time):
         acceleration = self.observation['distRaced'][0]/time/time
-        c1 = 1
-        c2 = 1
+        c1 = 3
+        c2 = 7
         self.fitnessSport = c1 * self.observation['topspeed'][0] + c2 * acceleration
         
 
@@ -63,6 +51,19 @@ class Population:
         for i in range(0, len(self.Individus), 2):
             st.sexyTime_5050(self.Individus[i], self.Individus[i+1])
         
+    def nextGeneration_Starbuck(self):
+        # Gets the bests candidate
+        Best = cp.copy(self.Individus[0])
+        for i in range(0, len(self.Individus), 2):
+            # In case it is unheaven
+            try:
+                self.Individus[i] = Best
+                st.sexyTime_Mutation50(self.Individus[i], self.Individus[i+1])
+            except:
+                pass
+        # Add the starbuck to the population
+        #self.Individus = self.Individus.append(Best)
+    
     def nextGeneration_Survivors(self, qty):
         # Gets the bests candidate
         Bests = self.Individus[0:qty]
@@ -71,7 +72,7 @@ class Population:
         for i in range(0, len(self.Individus), 2):
             # In case it is unheaven
             try:
-                st.sexyTime_5050(self.Individus[i], self.Individus[i+1])
+                st.sexyTime_Mutation50(self.Individus[i], self.Individus[i+1])
             except:
                 pass
         # Add the bests parents to the population
@@ -86,7 +87,7 @@ class Population:
             # Breeding
             if(rd.randint(0,9) > 2):
                 try:
-                    st.sexyTime_5050(self.Individus[i], self.Individus[i+1])
+                    st.sexyTime_Mutation50(self.Individus[i], self.Individus[i+1])
                 except:
                     pass
             # Mutation

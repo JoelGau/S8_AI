@@ -1,6 +1,6 @@
 
+import random as rd
 import numpy as np
-import GA_module as ga
 
 # Alternance des gènes
 def sexyTime_first(p1,p2):
@@ -78,6 +78,45 @@ def find_small(num1, num2):
     else:
         return num2  
     
+def sexyTime_Mutation50(p1,p2):
+    # Calculate new GearRatios
+    if (rd.randint(0,9) == 0):
+        p1.gr2, p2.gr2 = newGearRatio_Mutation(p1.gr2,p2.gr2)
+    else:
+        p1.gr2, p2.gr2 = newGearRatio_5050(p1.gr2,p2.gr2)
+    if (rd.randint(0,9) == 0):
+        p1.gr3, p2.gr3 = newGearRatio_Mutation(p1.gr3,p2.gr3)
+    else:
+        p1.gr3, p2.gr3 = newGearRatio_5050(p1.gr3,p2.gr3)
+    if (rd.randint(0,9) == 0):
+        p1.gr4, p2.gr4 = newGearRatio_Mutation(p1.gr4,p2.gr4)
+    else:
+        p1.gr4, p2.gr4 = newGearRatio_5050(p1.gr4,p2.gr4)
+    if (rd.randint(0,9) == 0):
+        p1.gr5, p2.gr5 = newGearRatio_Mutation(p1.gr5,p2.gr5)
+    else:
+        p1.gr5, p2.gr5 = newGearRatio_5050(p1.gr5,p2.gr5)
+    if (rd.randint(0,9) == 0):
+        p1.gr6, p2.gr6 = newGearRatio_Mutation(p1.gr6,p2.gr6)
+    else:
+        p1.gr6, p2.gr6 = newGearRatio_5050(p1.gr6,p2.gr6)
+    
+    # Calculate new Differential Gear Ratio
+    if (rd.randint(0,9) == 0):
+        p1.dgr, p2.dgr = newDifferential_Mutation(p1.dgr,p2.dgr)
+    else:
+        p1.dgr, p2.dgr = newDifferential_5050(p1.dgr, p2.dgr)
+    
+    # Calculate new fin angles
+    if (rd.randint(0,9) == 0):
+        p1.aar, p2.aar = newFinAngle_Mutation(p1.aar,p2.aar)
+    else:
+        p1.aar, p2.aar = newFinAngle_5050(p1.aar, p2.aar)
+    if (rd.randint(0,9) == 0):
+        p1.aav, p2.aav = newFinAngle_Mutation(p1.aav,p2.aav)
+    else:
+        p1.aav, p2.aav = newFinAngle_5050(p1.aav, p2.aav)  
+    
 def sexyTime_5050(p1,p2):
     # Calculate new GearRatios
     p1.gr2, p2.gr2 = newGearRatio_5050(p1.gr2,p2.gr2)
@@ -92,6 +131,12 @@ def sexyTime_5050(p1,p2):
     # Calculate new fin angles
     p1.aar, p2.aar = newFinAngle_5050(p1.aar, p2.aar)
     p1.aav, p2.aav = newFinAngle_5050(p1.aav, p2.aav)  
+    
+def newGearRatio_Mutation():
+    outp1gr = rd.randint(1,50)
+    outp2gr = rd.randint(1,50)
+    
+    return outp1gr, outp2gr 
     
 def newGearRatio_5050(p1gr, p2gr):
     # Evaluate Gear Ratios in binary
@@ -114,6 +159,12 @@ def newGearRatio_5050(p1gr, p2gr):
         
     return outp1gr, outp2gr 
 
+def newDifferential_Mutation():
+    outp1dgr = rd.randint(10,100)
+    outp2dgr = rd.randint(10,100)
+    
+    return outp1dgr, outp2dgr 
+
 def newDifferential_5050(p1dgr, p2dgr):
     # Evaluate Gear Ratios in binary
     up1 = 112 & p1dgr # 0b1110000
@@ -134,6 +185,12 @@ def newDifferential_5050(p1dgr, p2dgr):
         outp2dgr = 10
         
     return outp1dgr, outp2dgr
+
+def newFinAngle_Mutation():
+    outp1fin = rd.randint(0,900)
+    outp2fin = rd.randint(0,900)
+    
+    return outp1fin, outp2fin
 
 def newFinAngle_5050(p1fin, p2fin):
     # Evaluate Fin angles in binary
