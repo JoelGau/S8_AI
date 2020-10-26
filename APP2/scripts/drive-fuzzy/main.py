@@ -53,44 +53,53 @@ logger = logging.getLogger(__name__)
 # Define helper functions here
 ################################
 
-def createFuzzyController():
-    PI = math.pi
-    
-    angle = ctrl.Antecedent(np.linspace(-PI, PI, 1000), 'Angle')
-    track_pos = ctrl.Antecedent(np.linspace(-1, 1, 1000), 'Trackpos')
-    vitesse = ctrl.Antecedent(np.linspace(0, 300, 300), 'Vitesse')
-    rpm = ctrl.Antecedent(np.linspace(0, 10000, 10000), 'RPM')
-    courbe = ctrl.Antecedent(np.linspace(-1, 1, 1000), 'Courbe')
-
-
+import Fuzzy_module as fuzzmod   
+prelim_test = 1
 
 def main():
-
+    
     recordingsPath = os.path.join(CDIR, 'recordings')
     if not os.path.exists(recordingsPath):
         os.makedirs(recordingsPath)
 
     try:
-        with TorcsControlEnv(render=False) as env:
+        with TorcsControlEnv(render=True) as env:
 
-            nbTracks = len(TorcsControlEnv.availableTracks)
+            sim = fuzzmod.createFuzzyController()
+            if prelim_test == 1:
+                print('------------------------')
+                for rule in sim.ctrl.rules:
+                    print(rule)
+                print('------------------------')
+                 
+                for var in sim.ctrl.fuzzy_variables:
+                    var.view()
+                plt.show()
+                
+                nbTracks = len(TorcsControlEnv.availableTracks)
+            
+                
+            nbTracks = 1
             nbSuccessfulEpisodes = 0
+            
             for episode in range(nbTracks):
                 logger.info('Episode no.%d (out of %d)' % (episode + 1, nbTracks))
                 startTime = time.time()
 
                 observation = env.reset()
                 trackName = env.getTrackName()
-
                 nbStepsShowStats = 1000
                 curNbSteps = 0
                 done = False
-                with EpisodeRecorder(os.path.join(recordingsPath, 'track-%s.pklz' % (trackName))) as recorder:
+                
+                with EpisodeRecorder(os.path.join(recordingsPath, 'track_Rev3-%s.pklz' % (trackName))) as recorder:
                     while not done:
                         # TODO: Select the next action based on the observation
                         action = env.action_space.sample()
                         recorder.save(observation, action)
-    
+                        
+                        action = fuzzmod.calcConsignes(sim, observation, action)
+                        
                         # Execute the action
                         observation, reward, done, _ = env.step(action)
                         curNbSteps += 1
