@@ -54,7 +54,7 @@ logger = logging.getLogger(__name__)
 ################################
 
 import Fuzzy_module as fuzzmod   
-prelim_test = 0
+prelim_test = 1
 
 def main():
     
@@ -63,7 +63,7 @@ def main():
         os.makedirs(recordingsPath)
 
     try:
-        with TorcsControlEnv(render=False) as env:
+        with TorcsControlEnv(render=True) as env:
 
             sim = fuzzmod.createFuzzyController()
             if prelim_test == 1:
@@ -88,12 +88,11 @@ def main():
 
                 observation = env.reset()
                 trackName = env.getTrackName()
-
                 nbStepsShowStats = 1000
                 curNbSteps = 0
                 done = False
                 
-                with EpisodeRecorder(os.path.join(recordingsPath, 'track_Rev2-%s.pklz' % (trackName))) as recorder:
+                with EpisodeRecorder(os.path.join(recordingsPath, 'track_Rev3-%s.pklz' % (trackName))) as recorder:
                     while not done:
                         # TODO: Select the next action based on the observation
                         action = env.action_space.sample()

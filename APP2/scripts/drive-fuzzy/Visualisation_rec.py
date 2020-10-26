@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    recordingFilename = os.path.join(CDIR, 'recordings', 'track_Rev2-aalborg.pklz')
+    recordingFilename = os.path.join(CDIR, 'recordings', 'track_Rev3-aalborg.pklz')
     episode = EpisodeRecorder.restore(recordingFilename)
     episode.visualize(showObservations=True, showActions=True)
     plt.show()

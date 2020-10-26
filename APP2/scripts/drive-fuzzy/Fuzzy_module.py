@@ -30,8 +30,8 @@ def calcCourbe(capteur):
 
 def calcGear(Shift,currentGear):
     outGear = currentGear + Shift
-    if outGear < 1:
-        outGear = 1
+    if outGear < 2:
+        outGear = 2
     elif outGear > 6:
         outGear = 6
     return outGear
@@ -77,14 +77,14 @@ def createFuzzyController():
     angle['AnglePos'] = fuzz.trapmf(angle.universe, [PI/32, PI/8, PI/4, 3*PI/8])
     angle['AngleRealPos'] = fuzz.trapmf(angle.universe, [PI/4, PI/2, PI, PI])
     
-    track_pos['PosToRight'] = fuzz.trapmf(track_pos.universe, [-1, -1, -0.5, -0.4])
-    track_pos['PosRight'] = fuzz.trapmf(track_pos.universe, [-0.5, -0.4, -0.25, -0.1])
-    track_pos['PosMid'] = fuzz.trapmf(track_pos.universe, [-0.15, -0.1, 0.1, 0.15])
-    track_pos['PosLeft'] = fuzz.trapmf(track_pos.universe, [0.1, 0.25, 0.4, 0.5])
-    track_pos['PosToLeft'] = fuzz.trapmf(track_pos.universe, [0.4, 0.5, 1, 1])
+    track_pos['PosToRight'] = fuzz.trapmf(track_pos.universe, [-1, -1, -0.75, -0.6])
+    track_pos['PosRight'] = fuzz.trapmf(track_pos.universe, [-0.7, -0.6, -0.3, -0.25])
+    track_pos['PosMid'] = fuzz.trapmf(track_pos.universe, [-0.3, -0.2, 0.2, 0.3])
+    track_pos['PosLeft'] = fuzz.trapmf(track_pos.universe, [0.25, 0.3, 0.6, 0.7])
+    track_pos['PosToLeft'] = fuzz.trapmf(track_pos.universe, [0.6, 0.75, 1, 1])
     
-    vitesse['Low'] = fuzz.trapmf(vitesse.universe, [0, 0, 60, 80])
-    vitesse['Mid'] = fuzz.trapmf(vitesse.universe, [70, 80, 120, 130])
+    vitesse['Low'] = fuzz.trapmf(vitesse.universe, [0, 0, 60, 70])
+    vitesse['Mid'] = fuzz.trapmf(vitesse.universe, [60, 80, 120, 130])
     vitesse['High'] = fuzz.trapmf(vitesse.universe, [120,140,300,300])
     
     rpm['Low'] = fuzz.trapmf(rpm.universe, [0, 0, 1000, 2000])
@@ -102,15 +102,10 @@ def createFuzzyController():
     brake = ctrl.Consequent(np.linspace(0, 1, 1000), 'Brake', defuzzify_method='centroid')
     
     # Create membership functions
-    shift['DownShift'] = fuzz.trapmf(shift.universe, [-3, -3, -1, -0.2])
+    shift['DownShift'] = fuzz.trapmf(shift.universe, [-3, -3, -1, -0.5])
     shift['NoShift'] = fuzz.trapmf(shift.universe, [-1, 0, 0, 1])
-    shift['UpShift'] = fuzz.trapmf(shift.universe, [0.2, 1, 3, 3])
+    shift['UpShift'] = fuzz.trapmf(shift.universe, [0.5, 1, 3, 3])
     
-#    steer['HardRight'] = fuzz.trapmf(steer.universe, [-1, -1, -0.75, -0.5])
-#    steer['SoftRight'] = fuzz.trapmf(steer.universe, [-0.55, -0.5, -0.35, -0.15])
-#    steer['Rest'] = fuzz.trapmf(steer.universe, [-0.20, 0, 0, 0.20])
-#    steer['SoftLeft'] = fuzz.trapmf(steer.universe, [0.15, 0.35, 0.5, 0.55])
-#    steer['HardLeft'] = fuzz.trapmf(steer.universe, [0.5, 0.75, 1, 1])
     
     steer['HardRight'] = fuzz.trapmf(steer.universe, [-1, -1, -0.75, -0.4])
     steer['SoftRight'] = fuzz.trapmf(steer.universe, [-0.45, -0.4, -0.25, -0.15])
@@ -118,15 +113,11 @@ def createFuzzyController():
     steer['SoftLeft'] = fuzz.trapmf(steer.universe, [0.15, 0.25, 0.4, 0.45])
     steer['HardLeft'] = fuzz.trapmf(steer.universe, [0.4, 0.75, 1, 1])
 
-#    accel['NoAccel'] = fuzz.trapmf(accel.universe, [0, 0, 0.25, 0.5])
-#    accel['YesAccel'] = fuzz.trapmf(accel.universe, [0.25, 0.5, 1, 1])
-    accel['NoAccel'] = fuzz.trapmf(accel.universe, [0, 0, 0.05, 0.05])
+    accel['NoAccel'] = fuzz.trapmf(accel.universe, [0, 0, 0.04, 0.05])
     accel['YesAccel'] = fuzz.trapmf(accel.universe, [0.05, 0.05, 1, 1])
     
-#    brake['NoBrake'] = fuzz.trapmf(brake.universe, [0, 0, 0.25, 0.5])
-#    brake['YesBrake'] = fuzz.trapmf(brake.universe, [0.25, 0.5, 1, 1])
-    brake['NoBrake'] = fuzz.trapmf(brake.universe, [0, 0, 0.05, 0.05])
-    brake['YesBrake'] = fuzz.trapmf(brake.universe, [0.05, 0.05, 1, 1])
+    brake['NoBrake'] = fuzz.trapmf(brake.universe, [0, 0, 0.01, 0.02])
+    brake['YesBrake'] = fuzz.trapmf(brake.universe, [0.02, 0.02, 1, 1])
     
     # Define the rules.
     rules = []
@@ -160,7 +151,7 @@ def createFuzzyController():
     # New Steering Rules
     rules.append(ctrl.Rule(antecedent=(angle['AngleRealNeg'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleRealNeg'] & track_pos['PosLeft'] ), consequent=steer['HardRight']))
-    rules.append(ctrl.Rule(antecedent=(angle['AngleRealNeg'] & track_pos['PosMid']), consequent=steer['HardRight']))
+    rules.append(ctrl.Rule(antecedent=(angle['AngleRealNeg'] & track_pos['PosMid']), consequent=steer['SoftRight']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleRealNeg'] & track_pos['PosRight'] ), consequent=steer['Rest']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleRealNeg'] & track_pos['PosToRight'] ), consequent=steer['Rest']))
     
@@ -170,13 +161,13 @@ def createFuzzyController():
     rules.append(ctrl.Rule(antecedent=(angle['AngleNeg'] & track_pos['PosRight'] ), consequent=steer['Rest']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleNeg'] & track_pos['PosToRight'] ), consequent=steer['Rest']))
     
-    rules.append(ctrl.Rule(antecedent=(angle['AngleStraight'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
+    rules.append(ctrl.Rule(antecedent=(angle['AngleStraight'] & track_pos['PosToLeft']), consequent=steer['SoftRight']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleStraight'] & track_pos['PosLeft'] ), consequent=steer['SoftRight']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleStraight'] & track_pos['PosMid']), consequent=steer['Rest']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleStraight'] & track_pos['PosRight'] ), consequent=steer['SoftLeft']))
-    rules.append(ctrl.Rule(antecedent=(angle['AngleStraight'] & track_pos['PosToRight'] ), consequent=steer['HardLeft']))
+    rules.append(ctrl.Rule(antecedent=(angle['AngleStraight'] & track_pos['PosToRight'] ), consequent=steer['SoftLeft']))
     
-    rules.append(ctrl.Rule(antecedent=(angle['AnglePos'] & track_pos['PosToLeft']), consequent=steer['SoftRight']))
+    rules.append(ctrl.Rule(antecedent=(angle['AnglePos'] & track_pos['PosToLeft']), consequent=steer['Rest']))
     rules.append(ctrl.Rule(antecedent=(angle['AnglePos'] & track_pos['PosLeft'] ), consequent=steer['Rest']))
     rules.append(ctrl.Rule(antecedent=(angle['AnglePos'] & track_pos['PosMid']), consequent=steer['SoftLeft']))
     rules.append(ctrl.Rule(antecedent=(angle['AnglePos'] & track_pos['PosRight'] ), consequent=steer['SoftLeft']))
@@ -190,100 +181,7 @@ def createFuzzyController():
     
     
 #    # New Steering Rules
-#    lowS = 'Low'
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleRealNeg'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleRealNeg'] & track_pos['PosLeft'] ), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleRealNeg'] & track_pos['PosMid']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleRealNeg'] & track_pos['PosRight'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleRealNeg'] & track_pos['PosToRight'] ), consequent=steer['Rest']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleNeg'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleNeg'] & track_pos['PosLeft'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleNeg'] & track_pos['PosMid']), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleNeg'] & track_pos['PosRight'] ), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleNeg'] & track_pos['PosToRight'] ), consequent=steer['Rest']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleStraight'] & track_pos['PosToLeft']), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleStraight'] & track_pos['PosLeft'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleStraight'] & track_pos['PosMid']), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleStraight'] & track_pos['PosRight'] ), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleStraight'] & track_pos['PosToRight'] ), consequent=steer['SoftLeft']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AnglePos'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AnglePos'] & track_pos['PosLeft'] ), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AnglePos'] & track_pos['PosMid']), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AnglePos'] & track_pos['PosRight'] ), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AnglePos'] & track_pos['PosToRight'] ), consequent=steer['HardLeft']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleRealPos'] & track_pos['PosToLeft']), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleRealPos'] & track_pos['PosLeft'] ), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleRealPos'] & track_pos['PosMid']), consequent=steer['HardLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Low'] & angle['AngleRealPos'] & track_pos['PosRight'] ), consequent=steer['HardLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse[lowS] & angle['AngleRealPos'] & track_pos['PosToRight'] ), consequent=steer['HardLeft']))
 
-
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealNeg'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealNeg'] & track_pos['PosLeft'] ), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealNeg'] & track_pos['PosMid']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealNeg'] & track_pos['PosRight'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealNeg'] & track_pos['PosToRight'] ), consequent=steer['Rest']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleNeg'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleNeg'] & track_pos['PosLeft'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleNeg'] & track_pos['PosMid']), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleNeg'] & track_pos['PosRight'] ), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleNeg'] & track_pos['PosToRight'] ), consequent=steer['Rest']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleStraight'] & track_pos['PosToLeft']), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleStraight'] & track_pos['PosLeft'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleStraight'] & track_pos['PosMid']), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleStraight'] & track_pos['PosRight'] ), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleStraight'] & track_pos['PosToRight'] ), consequent=steer['SoftLeft']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AnglePos'] & track_pos['PosToLeft']), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AnglePos'] & track_pos['PosLeft'] ), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AnglePos'] & track_pos['PosMid']), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AnglePos'] & track_pos['PosRight'] ), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AnglePos'] & track_pos['PosToRight'] ), consequent=steer['HardLeft']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealPos'] & track_pos['PosToLeft']), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealPos'] & track_pos['PosLeft'] ), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealPos'] & track_pos['PosMid']), consequent=steer['HardLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealPos'] & track_pos['PosRight'] ), consequent=steer['HardLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['Mid'] & angle['AngleRealPos'] & track_pos['PosToRight'] ), consequent=steer['HardLeft']))
-#    
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealNeg'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealNeg'] & track_pos['PosLeft'] ), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealNeg'] & track_pos['PosMid']), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealNeg'] & track_pos['PosRight'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealNeg'] & track_pos['PosToRight'] ), consequent=steer['HardRight']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleNeg'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleNeg'] & track_pos['PosLeft'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleNeg'] & track_pos['PosMid']), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleNeg'] & track_pos['PosRight'] ), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleNeg'] & track_pos['PosToRight'] ), consequent=steer['Rest']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleStraight'] & track_pos['PosToLeft']), consequent=steer['HardRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleStraight'] & track_pos['PosLeft'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleStraight'] & track_pos['PosMid']), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleStraight'] & track_pos['PosRight'] ), consequent=steer['SoftRight']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleStraight'] & track_pos['PosToRight'] ), consequent=steer['HardRight']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AnglePos'] & track_pos['PosToLeft']), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AnglePos'] & track_pos['PosLeft'] ), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AnglePos'] & track_pos['PosMid']), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AnglePos'] & track_pos['PosRight'] ), consequent=steer['SoftLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AnglePos'] & track_pos['PosToRight'] ), consequent=steer['HardLeft']))
-#    
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealPos'] & track_pos['PosToLeft']), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealPos'] & track_pos['PosLeft'] ), consequent=steer['Rest']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealPos'] & track_pos['PosMid']), consequent=steer['HardLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealPos'] & track_pos['PosRight'] ), consequent=steer['HardLeft']))
-#    rules.append(ctrl.Rule(antecedent=(vitesse['High'] & angle['AngleRealPos'] & track_pos['PosToRight'] ), consequent=steer['HardLeft']))
-#    
-    
     # Acceleration Rules
     rules.append(ctrl.Rule(antecedent=(courbe['Straight']), consequent=accel['YesAccel']))
     rules.append(ctrl.Rule(antecedent=((courbe['KinkedR'] | courbe['KinkedL']) & vitesse['Low']), consequent=accel['YesAccel']))
