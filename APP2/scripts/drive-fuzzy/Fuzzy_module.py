@@ -113,6 +113,7 @@ def createFuzzyController():
     steer['SoftLeft'] = fuzz.trapmf(steer.universe, [0.15, 0.25, 0.4, 0.45])
     steer['HardLeft'] = fuzz.trapmf(steer.universe, [0.4, 0.75, 1, 1])
 
+     
     accel['NoAccel'] = fuzz.trapmf(accel.universe, [0, 0, 0.04, 0.05])
     accel['YesAccel'] = fuzz.trapmf(accel.universe, [0.05, 0.05, 1, 1])
     
@@ -175,7 +176,7 @@ def createFuzzyController():
     
     rules.append(ctrl.Rule(antecedent=(angle['AngleRealPos'] & track_pos['PosToLeft']), consequent=steer['Rest']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleRealPos'] & track_pos['PosLeft'] ), consequent=steer['SoftLeft']))
-    rules.append(ctrl.Rule(antecedent=(angle['AngleRealPos'] & track_pos['PosMid']), consequent=steer['HardLeft']))
+    rules.append(ctrl.Rule(antecedent=(angle['AngleRealPos'] & track_pos['PosMid']), consequent=steer['SoftLeft']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleRealPos'] & track_pos['PosRight'] ), consequent=steer['HardLeft']))
     rules.append(ctrl.Rule(antecedent=(angle['AngleRealPos'] & track_pos['PosToRight'] ), consequent=steer['HardLeft']))
     
@@ -192,6 +193,7 @@ def createFuzzyController():
     rules.append(ctrl.Rule(antecedent=((courbe['KinkedR'] | courbe['KinkedL']) & vitesse['Low']), consequent=brake['NoBrake']))
     rules.append(ctrl.Rule(antecedent=((courbe['KinkedR'] | courbe['KinkedL']) & (vitesse['High'] | vitesse['Mid'])), consequent=brake['YesBrake']))
 
+    
     # Conjunction (and_func) and disjunction (or_func) methods for rules:
     #     np.fmin
     #     np.fmax

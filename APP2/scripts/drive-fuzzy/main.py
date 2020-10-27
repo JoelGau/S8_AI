@@ -54,7 +54,7 @@ logger = logging.getLogger(__name__)
 ################################
 
 import Fuzzy_module as fuzzmod   
-prelim_test = 1
+prelim_test = 0
 
 def main():
     
@@ -92,7 +92,7 @@ def main():
                 curNbSteps = 0
                 done = False
                 
-                with EpisodeRecorder(os.path.join(recordingsPath, 'track_Rev3-%s.pklz' % (trackName))) as recorder:
+                with EpisodeRecorder(os.path.join(recordingsPath, 'track_Rev4-%s.pklz' % (trackName))) as recorder:
                     while not done:
                         # TODO: Select the next action based on the observation
                         action = env.action_space.sample()
