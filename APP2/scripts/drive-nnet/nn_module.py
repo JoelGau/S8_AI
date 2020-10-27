@@ -5,7 +5,6 @@ Created on Sat Oct 10 08:58:43 2020
 
 @author: user
 """
-
 import numpy as np
 from nipype.utils.filemanip import loadpkl
 
@@ -13,9 +12,11 @@ import tensorflow as tf
 from keras.models import Sequential, load_model
 from keras import layers
 from keras.optimizers import Adam, SGD
+import matplotlib.pyplot as plt
 
-from keras import backend as K
-from keras.utils.generic_utils import get_custom_objects
+import os
+
+
 
 #########################################
 # Create neural network
@@ -23,23 +24,8 @@ from keras.utils.generic_utils import get_custom_objects
 def create_nn_model(size_in, size_out):
         
     model = Sequential()
-    model.add(layers.Dense(units= size_in*1, activation='sigmoid', input_shape= (size_in,)))
+    model.add(layers.Dense(units= int(size_in*1), activation='sigmoid', input_shape= (size_in,)))
     model.add(layers.Dense(units= size_out, activation='sigmoid'))
-    
-    return model
-
-
-def bell(x_in):
-    [a, b, c] = [0, 1, 1]
-    return 1/(1+((x_in**2-a)/c)**(2*b))
-#
-#
-def create_anfis_model(size_in, size_out):
-        
-    model = Sequential()
-    model.add(layers.Input(shape=(size_in,)))
-    model.add(layers.Activation('sigmoid'))
-    model.add(layers.multiply())
     
     return model
 
@@ -54,13 +40,28 @@ def vision(capteur):
     return vis
 
 
+def build_dataset(path):
+    entries = os.listdir(path) #'../drive-bot/recordings'
+
+    data_loaded = []
+    for entry in entries:
+        data_loaded = data_loaded + loadpkl(path + entry)
+
+    return data_loaded
+        
+    
+    
 #########################################
 # Creating training data
 #########################################
-def load_dataset(file, valid_per):
+def load_dataset(file):
     
-    # open a file, where you stored the pickled data
-    data_loaded = loadpkl(file)
+    
+    if isinstance(file, str): 
+        # open a file, where you stored the pickled data
+        data_loaded = loadpkl(file)
+    else: data_loaded = file
+        
     
     size = len(data_loaded) 
     
@@ -91,27 +92,33 @@ def load_dataset(file, valid_per):
         gear_target[i, 0] = data_loaded[i]['gearCmd'] * 0.1
         steer_target[i, 0] = data_loaded[i]['steerCmd']*0.5 + 0.5
         
-    data_temp = np.concatenate((angle_data, gear_data, speed_data, track_data, trackpos_data), axis=1)  
-    target_temp = np.concatenate((accel_target, brake_target, gear_target, steer_target), axis=1)
+    data = np.concatenate((angle_data, gear_data, speed_data, track_data, trackpos_data), axis=1)  
+    target= np.concatenate((accel_target, brake_target, gear_target, steer_target), axis=1)
     
-    set_number, size_in = data_temp.shape
-    _, size_out = target_temp.shape
-    
-    valid_set_size = round(set_number*valid_per)
-    set_number = set_number - valid_set_size
-    
-    
-    valid_data = data_temp[0:valid_set_size, :]
-    valid_target = target_temp[0:valid_set_size, :]
-    
-    data = data_temp[valid_set_size:, :]
-    target = target_temp[valid_set_size:, :]
+#    data_temp = np.concatenate((angle_data, gear_data, speed_data, track_data, trackpos_data), axis=1)  
+#    target_temp = np.concatenate((accel_target, brake_target, gear_target, steer_target), axis=1)
+#    
+#    set_number, size_in = data_temp.shape
+#    _, size_out = target_temp.shape
+#    
+#    valid_set_size = round(set_number*valid_per)
+#    set_number = set_number - valid_set_size
+#    
+#    
+#    valid_data = data_temp[0:valid_set_size, :]
+#    valid_target = target_temp[0:valid_set_size, :]
+#    
+#    data = data_temp[valid_set_size:, :]
+#    target = target_temp[valid_set_size:, :]
     
 
     #data = np.concatenate((speed_data, track_data, trackpos_data), axis=1)
     #target = np.concatenate((accel_target, brake_target, steer_target), axis=1)
     
-    return data, target, valid_data, valid_target, size_in, size_out
+    _, size_in = data.shape
+    _, size_out = target.shape
+    
+    return data, target, size_in, size_out
 
 
 
