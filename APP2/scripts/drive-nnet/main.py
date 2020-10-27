@@ -35,6 +35,7 @@ import logging
 import numpy as np
 import math
 from keras.optimizers import SGD
+from keras.models import Sequential, load_model
 
 
 import nn_module as nn
@@ -50,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 
 
-train = True
+train = False
 
 
 
@@ -61,15 +62,15 @@ nb_epoch = 20000
 learning_rate = 0.5
 valid_split = 0.1
 
-save_name = str('car_ride_itt_5_ep=' + str(nb_epoch) + '_HlSize=24.h5')
+save_name = str('car_ride_model.h5')
 
 if train:
 
     
     # Controle rules data set
-    dataset = nn.build_dataset('../drive-simple/recordings/')
-    data, target, size_in, size_out = nn.load_dataset(dataset)
-    #data, target, size_in, size_out = nn.load_dataset('../drive-bot/recordings/track.pklz')
+    #dataset = nn.build_dataset('../drive-simple/recordings/')
+    #data, target, size_in, size_out = nn.load_dataset(dataset)
+    data, target, size_in, size_out = nn.load_dataset('track.pklz')
     
     model = nn.create_nn_model(size_in, size_out)
     
@@ -102,9 +103,9 @@ if train:
     model.save(save_name)
 
 else:
-    model = load_model("car_ride_epoch_V3=20000_HlSize=24.h5")
-    from ann_visualizer.visualize import ann_viz
-    ann_viz(model, title="My first neural network")
+    model = load_model("car_ride_itt_3_ep=20000_HlSize=24.h5")
+    #from ann_visualizer.visualize import ann_viz
+    #ann_viz(model, title="My first neural network")
         
     _, size_in = model.input_shape
     _, size_out = model.output_shape
@@ -118,7 +119,7 @@ def main():
         os.makedirs(recordingsPath)
 
     try:
-        with TorcsControlEnv(render=False) as env:
+        with TorcsControlEnv(render=True) as env:
 
             nbTracks = len(TorcsControlEnv.availableTracks)
             nbSuccessfulEpisodes = 0

@@ -18,3 +18,13 @@ Le fichier Fuzzy_modules.py comprend les différentes fonction de pré et post t
 ## Partie NN
 ### Voir APP2/scripts/drive-nnet
 
+Installer sudo pip install nipype
+et sudo pip install comet-ml.
+
+On visualiser l'entrainement ici:
+https://www.comet.ml/bertsam/app2/view/new
+
+Dans main.py, la ligne 53 permet d'entrainer à partir d'un dataset ou de simuler à partir d'un modèle déjà entrainé. Utiliser les ligne 69 à 72 pour décider le dataset d'entrainement.
+Le fichier nn_module.py contient les fonctions de formatage et de loading du dataset. Il comprend aussi les spécifications du modèle du nn pour l'entrainement.
+
+
