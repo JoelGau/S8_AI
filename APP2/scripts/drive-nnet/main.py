@@ -26,11 +26,20 @@
 
 # Author: Simon Brodeur <simon.brodeur@usherbrooke.ca>
 # Université de Sherbrooke, APP3 S8GIA, A2018
-
+from comet_ml import Experiment
 import os
 import sys
 import time
 import logging
+import numpy as np
+import math
+
+import nn_module as nn
+import tensorflow as tf
+from keras.models import Sequential, load_model
+from keras.layers import Dense
+from keras.optimizers import Adam, SGD
+
 
 sys.path.append('../..')
 from torcs.control.core import TorcsControlEnv, TorcsException, EpisodeRecorder
@@ -39,10 +48,58 @@ CDIR = os.path.dirname(os.path.realpath(__file__))
 
 logger = logging.getLogger(__name__)
 
+train = True
 
-################################
-# Define helper functions here
-################################
+
+experiment = Experiment(api_key="oXuZfAKkB3UrV8H78EqqBAkzL",
+                        project_name="neuromap-codec", workspace="bertsam")
+
+learning_rate = 0.5
+nb_epoch = 20000
+
+
+if train:
+    # Controle rules data set
+    data, target = nn.load_dataset('track-alpine-1.pklz')
+    
+    
+    
+    _, size_in = data.shape
+    _, size_out = target.shape
+    
+    # Create neural network
+    model = Sequential()
+    model.add(Dense(units= size_in*1, activation='sigmoid', input_shape= (size_in,)))
+    #model.add(Dense(units= size_in, activation='sigmoid'))
+    model.add(Dense(units= size_out, activation='sigmoid'))
+    #print(model.summary())
+    
+    # Define training parameters
+    model.compile(optimizer = SGD(lr = learning_rate), loss='mse')
+    
+
+    # log your  parameters to Comet.ml!
+    params = {"learning_rate": learning_rate,
+              "batch_size": len(data),
+              "nb_epoch": nb_epoch
+              }
+    
+    experiment.log_parameters(params)
+    
+    print('Training...')
+
+    # Perform training
+    model.fit(data, target, batch_size=len(data), epochs=nb_epoch, shuffle=True, verbose=1)
+    
+    save_name = str('car_ride_epoch_V3=' + str(nb_epoch) + '_HlSize=24.h5')
+    model.save(save_name)
+
+else:
+    model = load_model("car_ride_epoch_V3=20000_HlSize=24.h5")
+    _, size_in = model.input_shape
+    _, size_out = model.output_shape
+    
+
 
 def main():
 
@@ -51,7 +108,7 @@ def main():
         os.makedirs(recordingsPath)
 
     try:
-        with TorcsControlEnv(render=False) as env:
+        with TorcsControlEnv(render=True) as env:
 
             nbTracks = len(TorcsControlEnv.availableTracks)
             nbSuccessfulEpisodes = 0
@@ -70,10 +127,36 @@ def main():
                         # TODO: Select the next action based on the observation
                         action = env.action_space.sample()
                         recorder.save(observation, action)
-    
-                        # Execute the action
+      
+                        #rint(observation)
+                        
+                        angle = observation["angle"]
+                        gear = observation["gear"]
+                        rpm = observation["rpm"]
+                        speed = observation["speed"]
+                        track = observation["track"]
+                        trackpos = observation["trackPos"]
+                        
+
+                        proch_action = np.empty((1, size_in))
+                      
+                        
+                        proch_action[0, :] = np.concatenate((angle, gear, speed, track, trackpos), axis=0)
+                        
+                        
+                        pred = model.predict(proch_action)
+                        
+                        action['accel'][0] = pred[0, 0]
+                        action['brake'][0] = pred[0, 1]
+                        action['gear'][0] = math.ceil(pred[0, 2]*10)
+                        action['steer'][0] = (pred[0, 3]-0.5)*2
+                        
+                  
+                        
+                       # Execute the action
                         observation, reward, done, _ = env.step(action)
                         curNbSteps += 1
+  
     
                         if observation and curNbSteps % nbStepsShowStats == 0:
                             curLapTime = observation['curLapTime'][0]
