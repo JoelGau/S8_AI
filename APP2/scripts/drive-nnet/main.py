@@ -26,6 +26,7 @@
 
 # Author: Simon Brodeur <simon.brodeur@usherbrooke.ca>
 # Université de Sherbrooke, APP3 S8GIA, A2018
+
 from comet_ml import Experiment
 import os
 import sys
@@ -33,12 +34,11 @@ import time
 import logging
 import numpy as np
 import math
+from keras.optimizers import SGD
+
 
 import nn_module as nn
-import tensorflow as tf
-from keras.models import Sequential, load_model
-from keras.layers import Dense
-from keras.optimizers import Adam, SGD
+
 
 
 sys.path.append('../..')
@@ -48,31 +48,30 @@ CDIR = os.path.dirname(os.path.realpath(__file__))
 
 logger = logging.getLogger(__name__)
 
+
+
 train = True
 
 
+
 experiment = Experiment(api_key="oXuZfAKkB3UrV8H78EqqBAkzL",
-                        project_name="neuromap-codec", workspace="bertsam")
+                    project_name="app2", workspace="bertsam", log_code=True)
 
-learning_rate = 0.5
 nb_epoch = 20000
+learning_rate = 0.5
+valid_split = 0.1
 
+save_name = str('car_ride_itt_5_ep=' + str(nb_epoch) + '_HlSize=24.h5')
 
 if train:
+
+    
     # Controle rules data set
-    data, target = nn.load_dataset('track-alpine-1.pklz')
+    dataset = nn.build_dataset('../drive-simple/recordings/')
+    data, target, size_in, size_out = nn.load_dataset(dataset)
+    #data, target, size_in, size_out = nn.load_dataset('../drive-bot/recordings/track.pklz')
     
-    
-    
-    _, size_in = data.shape
-    _, size_out = target.shape
-    
-    # Create neural network
-    model = Sequential()
-    model.add(Dense(units= size_in*1, activation='sigmoid', input_shape= (size_in,)))
-    #model.add(Dense(units= size_in, activation='sigmoid'))
-    model.add(Dense(units= size_out, activation='sigmoid'))
-    #print(model.summary())
+    model = nn.create_nn_model(size_in, size_out)
     
     # Define training parameters
     model.compile(optimizer = SGD(lr = learning_rate), loss='mse')
@@ -86,16 +85,27 @@ if train:
     
     experiment.log_parameters(params)
     
+    print(model.summary())
+    
     print('Training...')
 
     # Perform training
-    model.fit(data, target, batch_size=len(data), epochs=nb_epoch, shuffle=True, verbose=1)
+    #model.fit(data, target, batch_size=len(data), epochs=nb_epoch, shuffle=True, verbose=1)
+    model.fit(data, target,
+                batch_size=len(data),
+                epochs = nb_epoch,
+                shuffle=True,
+                verbose=0,
+                validation_split = valid_split)
     
-    save_name = str('car_ride_epoch_V3=' + str(nb_epoch) + '_HlSize=24.h5')
+    
     model.save(save_name)
 
 else:
     model = load_model("car_ride_epoch_V3=20000_HlSize=24.h5")
+    from ann_visualizer.visualize import ann_viz
+    ann_viz(model, title="My first neural network")
+        
     _, size_in = model.input_shape
     _, size_out = model.output_shape
     
@@ -108,7 +118,7 @@ def main():
         os.makedirs(recordingsPath)
 
     try:
-        with TorcsControlEnv(render=True) as env:
+        with TorcsControlEnv(render=False) as env:
 
             nbTracks = len(TorcsControlEnv.availableTracks)
             nbSuccessfulEpisodes = 0
@@ -150,6 +160,9 @@ def main():
                         action['brake'][0] = pred[0, 1]
                         action['gear'][0] = math.ceil(pred[0, 2]*10)
                         action['steer'][0] = (pred[0, 3]-0.5)*2
+                        
+#                        while action['gear'][0] > 6:
+#                            action['gear'][0] = action['gear'][0] - 1
                         
                   
                         
