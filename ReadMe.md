@@ -17,3 +17,4 @@ Le fichier Fuzzy_modules.py comprend les différentes fonction de pré et post t
 
 ## Partie NN
 ### Voir APP2/scripts/drive-nnet
+
