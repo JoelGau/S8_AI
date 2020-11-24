@@ -54,7 +54,7 @@ logger = logging.getLogger(__name__)
 ################################
 
 import Fuzzy_module as fuzzmod   
-prelim_test = 1
+prelim_test = 0
 
 def main():
     

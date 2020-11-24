@@ -89,7 +89,7 @@ def main(nb_epoch, population):
                 if (Best.fitnessSport < Mypop.Individus[0].fitnessSport):
                     print("New Best!")
                     Best = cp.copy(Mypop.Individus[0])
-                Mypop.nextGeneration_Starbuck()
+                Mypop.nextGeneration_Survivors(2)
 
     except TorcsException as e:
         logger.error('Error occured communicating with TORCS server: ' + str(e))
@@ -172,8 +172,8 @@ def test():
         pass
 
 if __name__ == '__main__':
-    nb_epoch = 10
-    population = 50
+    nb_epoch = 5
+    population = 20
     logging.basicConfig(level=logging.INFO)
     best, moy, every = main(nb_epoch, population)
     AffichageFitMoySpo(moy, nb_epoch)
